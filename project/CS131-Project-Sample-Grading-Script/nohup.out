@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/Users/ajpfahnl/Google Drive/_CS131/project/CS131-Project-Sample-Grading-Script/./sample_submission/server.py", line 224, in <module>
+    main()
+  File "/Users/ajpfahnl/Google Drive/_CS131/project/CS131-Project-Sample-Grading-Script/./sample_submission/server.py", line 218, in main
+    asyncio.run(server.run_forever())
+  File "/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/lib/python3.9/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/lib/python3.9/asyncio/base_events.py", line 642, in run_until_complete
+    return future.result()
+  File "/Users/ajpfahnl/Google Drive/_CS131/project/CS131-Project-Sample-Grading-Script/./sample_submission/server.py", line 199, in run_forever
+    server = await asyncio.start_server(self.handle_echo, self.ip, self.port)
+  File "/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/lib/python3.9/asyncio/streams.py", line 94, in start_server
+    return await loop.create_server(factory, host, port, **kwds)
+  File "/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/lib/python3.9/asyncio/base_events.py", line 1494, in create_server
+    raise OSError(err.errno, 'error while attempting '
+OSError: [Errno 48] error while attempting to bind on address ('127.0.0.1', 12329): address already in use

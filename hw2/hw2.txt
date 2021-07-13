@@ -1,0 +1,78 @@
+After Action Report: Writing make_parser in terms of make_matcher's functions.
+
+I first implemented make_matcher and then attempted to write make_parser in
+terms of make_matcher. The main rationale was that make_matcher was listed
+as the first function to implement in the specifications, so it seemed logical
+to follow the implementation of make_matcher with make_parser, the next
+function that the specifications required.
+
+My first implementation of make_matcher can be viewed in the VERSION 1 
+comment. The issue with my first implementation of make_matcher, in particular
+make_matcher_helper, was the inability to return the rules encountered. One of
+the requirements of make_parser is to go through the grammar rules in the same
+order as make_matcher. To make this easier, I reimplemented 
+make_matcher_helper so that the rules encountered would be returned by a match
+instead of the acceptor's response. To return the acceptor's response as
+intended originally for make_matcher, I altered make_matcher's accept input to
+ignore the enced (encountered rules) argument with a lambda function. Since we
+want to use the full fragment, make_parser uses an acceptor called accept_parse
+that mirrors accept_empty_suffix from the supplied test cases in the specs,
+since using the full fragment entails having no remaining suffix. This second
+version is labeled with the VERSION 2 comment.
+
+make_matcher_helper is the meat of both functions. It takes a production
+function, nonterminal and associated alternatives list, an acceptor, fragment,
+and encountered rules list. The elements of the alternatives list are tested
+in order (as required) until an acceptable prefix is found and the result of
+calling the suffix on the acceptor is returned. The internal checker function
+is what actually checks for a valid prefix, and make_matcher_helper and checker
+call on each other to make this work. This allows for both iterating through
+rules and iterating through symbols in a rule. Backtracking is implemented
+in a similar manner to the supplied append_matchers example code. make_matcher
+is basically a wrapper for make_matcher_helper with the output being the result
+of accept called with the suffix of the valid prefix.
+
+make_parser uses make_matcher_helper to return the encountered rules that make
+the entire fragment valid, and then these rules are processed in order to
+build the parse tree through next_level and same_level which call each other.
+Note that make_matcher_helper actually constructs the encountered rules such
+that the order is backwards in order to make use of OCaml's efficient list
+cons operation. Thus the acceptor passed in reverses the list before it is
+returned. next_level takes a list of symbols and encountered rules and then it
+attempts to construct the next level in the parse tree. Each node in this level
+is constructed using the same_level function. same_level either forms a 
+terminal node (Leaf) or it further builds the parse tree by calling next_level
+for the subtrees in the next level. Similar to make_matcher_helper, the
+recursion here is intended so that we can iterate through rules in the same
+level and iterate between levels.
+
+Currently, my implementation has at least one flaw involving grammar loops.
+Take the following early rendition of my test grammar:
+
+type my_grammar_nonterminals = 
+  | Base | One | Two
+
+let my_grammar = 
+  (Base,
+   function
+     | Base -> [[N One; T "term"]; [N Two]]
+     | One -> [[N Base]]
+     | Two -> [[T "end"]]
+     )
+
+The fragment ["end"] results in a looping recursion since my function loops
+between Base's [N One; T "term"] and One's [N Base]. The functions never
+reach Base's [N Two]. The only fix I currently have is to construct the
+grammar such that any potential nonterminal alternates that might loop
+are listed last (although this wouldn't fully solve the issue, especially
+if there are multiple potential loops). For example,
+
+let my_grammar = 
+  (Base,
+   function
+     | Base -> [[N Two]; [N One; T "term"]]
+     | One -> [[N Base]]
+     | Two -> [[T "end"]]
+     )
+
+prevents the original loop from occurring.

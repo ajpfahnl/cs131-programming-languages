@@ -1,0 +1,145 @@
+Makefile                                                                                                                                                                       100%  199     6.5KB/s   00:00    
+test_submission.sh                                                                                                                                                             100%  380    16.1KB/s   00:00    
+Pigzj.java                                                                                                                                                                     100%   10KB 230.4KB/s   00:00    
+README.txt                                                                                                                                                                     100%   10KB 364.6KB/s   00:00    
+strace.sh                                                                                                                                                                      100%  226     8.8KB/s   00:00    
+hw3.html                                                                                                                                                                       100%   13KB 454.6KB/s   00:00    
+check_seas.sh                                                                                                                                                                  100%  363    18.6KB/s   00:00    
+--- TIMING, ACCURACY, and SUBMISSION CHECKS ---
+rm -f *.gz *.class *.jar
+rm -rf testdir
+javac Pigzj.java
+
+
+
+
+
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 66.47    0.009938        2484         4           close
+ 28.04    0.004192          25       166           write
+  5.50    0.000822           0      3846           read
+  0.00    0.000000           0         3           fstat
+  0.00    0.000000           0         1           lseek
+  0.00    0.000000           0         5           mmap
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0        12           rt_sigaction
+  0.00    0.000000           0         1         1 ioctl
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         2         1 arch_prctl
+  0.00    0.000000           0         2           openat
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.014952                  4050         3 total
+strace: Process 286749 attached
+strace: Process 286750 attached
+strace: Process 286751 attached
+strace: Process 286752 attached
+strace: Process 286753 attached
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 75.48    0.259242          50      5179       371 futex
+ 12.09    0.041525          43       963           write
+ 11.45    0.039321          40       974           read
+  0.56    0.001939          42        46           mmap
+  0.16    0.000557          21        26           munmap
+  0.13    0.000459          13        34           mprotect
+  0.06    0.000199          33         6           set_robust_list
+  0.02    0.000074          14         5           clone
+  0.01    0.000032           4         7           openat
+  0.01    0.000021           2         8           brk
+  0.01    0.000019           2         7           close
+  0.00    0.000017           2         7           fstat
+  0.00    0.000013           4         3           rt_sigaction
+  0.00    0.000012           2         5           lseek
+  0.00    0.000008           4         2         2 ioctl
+  0.00    0.000005           5         1           rt_sigprocmask
+  0.00    0.000005           5         1           prlimit64
+  0.00    0.000004           2         2         1 arch_prctl
+  0.00    0.000004           4         1           set_tid_address
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         5           madvise
+  0.00    0.000000           0         1           execve
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.343456                  7284       375 total
+
+
+
+strace: Process 286770 attached
+strace: Process 286771 attached
+strace: Process 286772 attached
+strace: Process 286773 attached
+strace: Process 286774 attached
+strace: Process 286775 attached
+strace: Process 286776 attached
+strace: Process 286777 attached
+strace: Process 286778 attached
+strace: Process 286779 attached
+strace: Process 286780 attached
+strace: Process 286781 attached
+strace: Process 286782 attached
+strace: Process 286783 attached
+strace: Process 286784 attached
+strace: Process 286785 attached
+strace: Process 286786 attached
+strace: Process 286787 attached
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 91.43    0.481421          97      4935      1136 futex
+  4.07    0.021426           9      2164           read
+  2.61    0.013739          14       972           write
+  0.36    0.001897           9       208           mmap
+  0.35    0.001855           1      1046           lseek
+  0.30    0.001605           4       323           mprotect
+  0.20    0.001058           4       215       105 openat
+  0.10    0.000522           4       123           rt_sigprocmask
+  0.08    0.000432           4        94        52 stat
+  0.08    0.000402           3       116           close
+  0.07    0.000389           3       112           fstat
+  0.06    0.000338          14        23           munmap
+  0.05    0.000251           5        42           sched_getaffinity
+  0.03    0.000138           1        76         1 lstat
+  0.02    0.000116           6        18           clone
+  0.02    0.000090           6        13           prctl
+  0.02    0.000087           7        12           madvise
+  0.01    0.000076          19         4           sendto
+  0.01    0.000064           2        26           rt_sigaction
+  0.01    0.000060          10         6           getdents64
+  0.01    0.000054           2        19           set_robust_list
+  0.01    0.000050           2        19           gettid
+  0.01    0.000037           3        12           getsockname
+  0.01    0.000037          37         1           unlink
+  0.01    0.000035           4         8           socket
+  0.01    0.000032           3        10           getpid
+  0.01    0.000027           3         8           getsockopt
+  0.00    0.000024          12         2           ftruncate
+  0.00    0.000023           5         4           poll
+  0.00    0.000023           2         9           prlimit64
+  0.00    0.000021           0        58           sched_yield
+  0.00    0.000020           5         4           recvfrom
+  0.00    0.000017           4         4           fchdir
+  0.00    0.000016           4         4           setsockopt
+  0.00    0.000015           3         4           brk
+  0.00    0.000015           3         4           geteuid
+  0.00    0.000014           3         4         4 connect
+  0.00    0.000014           3         4         4 bind
+  0.00    0.000014           7         2           readlink
+  0.00    0.000013           3         4           ioctl
+  0.00    0.000009           4         2           getcwd
+  0.00    0.000008           0        18           rt_sigreturn
+  0.00    0.000008           4         2           clock_getres
+  0.00    0.000007           1         4         2 access
+  0.00    0.000007           7         1         1 mkdir
+  0.00    0.000007           3         2           sysinfo
+  0.00    0.000006           3         2           uname
+  0.00    0.000005           5         1           getuid
+  0.00    0.000005           5         1           set_tid_address
+  0.00    0.000004           1         4           fcntl
+  0.00    0.000004           2         2         1 arch_prctl
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         2         2 statfs
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.526537                 10754      1308 total

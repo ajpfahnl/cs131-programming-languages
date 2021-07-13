@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>Homework 6. Evaluate a language for secure camera-based HVAC control</title>
+<meta charset='UTF-8'>
+<link rel='author' href='mailto:eggert@cs.ucla.edu'>
+<link rel='license' href='copyright.html'>
+</head>
+
+<body>
+
+<h1>Homework 6. Evaluate a language for secure camera-based HVAC control</h1>
+
+<p><small>[<a href='../index.html'>131 home</a> &gt; <a href='../homework.html'>Homework</a>]</small></p>
+
+<h2>Motivation</h2>
+
+<p>You’re working for a company Haversack Inc. that
+  designs, build and installs heating, ventilation, and air conditioning
+  (HVAC) systems for large customers.
+  Haversack has a team working on SecureHEAT, a system intended to save
+  money by controlling temperature more efficiently in buildings.
+  Instead of using traditional building thermostats, SecureHEAT
+  uses inexpensive cameras to implement a so-called Human
+  Embodied Autonomous Thermostat (HEAT) system that monitors the faces
+  of human occupants, calculates the occupants’ facial temperatures,
+  and uses these calculations to control the buildings’ air
+  temperatures. The cameras are attached to building power, and have
+  no battery backup; they use a wireless network to connect to base
+  stations at secure locations within the building. As the cameras’
+  embedded CPUs have limited processing power and memory, the base
+  stations do the bulk of the calculations and use the results to
+  control the building’s HVAC units.</p>
+
+<p>For more on HEAT systems, see:</p>
+<ul>
+  <li>U of Michigan. <a href='https://www.sciencedaily.com/releases/2020/06/200616083353.htm'>Turning faces into thermostats: Autonomous HVAC system could provide more comfort with less energy</a>. ScienceDaily. 2020.</li>
+  <li>Li D, Menassa CC, Kamat VR, Byon E. <a href='https://ebyon.engin.umich.edu/wp-content/uploads/sites/162/2020/05/2020.HEAT-Human-Embodied-Autonomous-Thermostat.pdf'>HEAT &ndash; Human Embodied
+      Autonomous Thermostat</a>. <em>Build Environ</em>. 2020;178:106879. doi:<a href='https://doi.org/10.1016/j.buildenv.2020.106879'>10.1016/j.buildenv.2020.106879</a>.</li>
+</ul>
+
+<p>A problem has come up when trying to market the HEAT system: many
+  of your potential customers manage buildings that house banks, the
+  military, intelligence services, prisons, or other organizations
+  that require high security. These customers are concerned that
+  software in the cameras will be penetrated, and will leak
+  information to adversaries. Although Haversack has used a mixture of C
+  and C++ to program such systems in the past, your customers have
+  heard that C and C++ programs are vulnerable to these sorts of
+  attacks. In order to address these concerns, your boss wants your
+  team to
+  investigate alternative programming languages that support the following
+  properties well:</p>
+
+<ul>
+  <li>The software running inside the cameras must be cleanly written
+    and easy to audit.</li>
+  <li>The software should be
+    a <a href='https://en.wikipedia.org/wiki/Standalone_program'>freestanding
+      program</a>, with no separate operating system (as the OS itself
+      would be a source of security holes).</li>
+  <li>The software running should be as simple and stripped-down as
+    possible. This rules out using higher-level languages like Python
+    or Java, which assume components like interpreters or garbage
+    collectors that your potential customers might not trust.</li>
+  <li>The software must be capable of interfacing to low-level
+    hardware devices, such as camera or network interfaces.</li>
+</ul>
+
+<p>Your boss suggests that your team evaluate alternative
+  programming languages as candidates for this application.
+  Your boss is not expecting working prototypes for the proposed
+  application, just a feasibility study of the languages.</p>
+
+<h2>Assignment</h2>
+
+<p>Consider the following three languages.</p>
+
+<ol>
+  <li><a href='https://odin-lang.org/'>Odin</a></li>
+  <li><a href='https://vlang.io/'>V</a></li>
+  <li><a href='https://ziglang.org/'>Zig</a></li>
+</ol>
+
+<p>If your student-ID is the 9 digit integer S, choose the language
+  numbered (S % 3) + 1 from the above list, where % denotes the
+  integer remainder operator. For example, if your student ID is
+  220-296-859, choose the language Odin because (220296859 % 3) + 1
+  equals 2.</p>
+
+<p>Do some research on the chosen language and its support software as
+a potential platform. Your research should include an examination of the
+language and system documentation to help determine whether it would
+be effective. We want to know whether the language supports the proposed
+application well.
+</p>
+
+<p>Evaluate the features of the proposed language.
+  What strengths and weaknesses do you see?
+  What are the biggest problems you anticipate when using it
+  for this application?</p>
+
+<p>Write an executive summary that gives the language’s
+  strengths and weaknesses, along with
+  problems for this application. Your summary should focus on the
+  technology’s effects on security, ease of use, flexibility, generality,
+  performance, and reliability; thie idea is to explore the most-important
+  language-relevant technical challenges in doing the proposed
+  app.</p>
+
+<p>The summary should be suitable for Haversack’s software executives,
+  that is, for readers who have some expertise in software, and who
+  know C and C++ reasonably well, along with all the languages
+  already covered in this class.</p>
+
+<p>The summary should be in 10-point font or larger and should be at
+  most two pages. You can put references and appendixes in later
+  pages, if you can’t get under the page limit: the appendixes can
+  contain any source code or diagrams that don’t otherwise fit. Please keep
+  the <a href='../comm.html'>resources for written reports and oral
+  presentations</a> in mind, particularly its rubrics and its advice
+  for citations to sources that you consulted.</p>
+
+<p>In your evaluation, do not worry about whether the SecureHEAT
+  team already knows the language or its infrastructure;
+  you can assume that they’ll come up to speed quickly.</p>
+
+<p>For the purpose of this assignment,
+  assume the latest stable version of the language;
+  you need not worry about portability to earlier versions.
+  Specify the version number in your summary.</p>
+
+<h2>Submit</h2>
+
+<p>Submit a file <samp>hw6.pdf</samp> containing your summary.</p>
+
+<footer>
+<hr>
+<small>
+ &copy; 2020, 2021 <a href='../mail-eggert.html'>Paul Eggert</a>.
+ See <a href='../copyright.html'>copying rules</a>.<br>
+
+ $Id: hw6.html,v 1.76 2021/03/04 00:26:40 eggert Exp eggert $
+
+</small>
+</footer>
+
+</body>
+</html>

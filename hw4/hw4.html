@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>Homework 4. KenKen solver</title>
+<meta charset='UTF-8'>
+<link rel='author' href='mailto:eggert@cs.ucla.edu'>
+<link rel='license' href='copyright.html'>
+</head>
+
+<body>
+
+<h1>Homework 4. KenKen solver</h1>
+
+<h2>Motivation</h2>
+
+<p><a href='https://en.wikipedia.org/wiki/KenKen'>KenKen</a> is an arithmetical-logical puzzle whose goal is to fill in an <var>N</var>&times;<var>N</var> grid with integers, so that every row and every column contains all the integers from 1 through <var>N</var>, and so that certain extra constraints can be met. These extra constraints are specified by cages that say that 1 or more contiguous cells must add up to a certain value, or must yield a certain value when multiplied; or that two cells must yield a certain value when divided or subtracted. For example:</p>
+
+<p><img src='KenKenProblem.svg' style='max-width:100%;' alt='6&times;6 KenKen puzzle with several constraints. For example, the cage containing the top two cells in the first row says "11+", and an inverted L-shaped cage at upper right with four cells says "6&times;".' /> <em><small><a href='http://commons.wikimedia.org/wiki/File:KenKenProblem.svg'>Image credit</a></small></em></p>
+
+<p>A human doing this puzzle can reason it out with arguments like the following. The "11+" at upper left must contain a 5 and a 6, as must the "30&times;" at medium right. Therefore, there cannot be another 5 in either column 1 or row 4. The "240&times;" at medium left must contain a 5 somewhere, and since it can't be in either column 1 or row 4, the entry in row 3, column 2 must be where the 5 is; we have now deduced an entry. For fun, you might try filling out the rest of the puzzle, using similar reasoning.</p>
+
+<p>A computer solving this problem doesn't need to be that smart. It can rely on a small list of solution strategies rather than the ad hoc approach taken by humans.</p>
+
+<h2>Assignment</h2>
+
+<p>Three things. First, write a predicate <samp>kenken/3</samp> that
+accepts the following arguments:</p>
+
+<ol>
+<li><var>N</var>, a nonnegative integer specifying the number of cells on each side of the KenKen square.</li>
+<li><var>C</var>, a list of numeric cage constraints as described below.</li>
+<li><var>T</var>, a list of list of integers. All the lists have length <var>N</var>. This represents the <var>N</var>&times;<var>N</var> grid.</li>
+</ol>
+
+<p>Each constraint in <var>C</var> is of the following form:</p>
+
+<dl>
+<dt><samp>+(</samp><var>S</var><samp>,</samp> <var>L</var><samp>)</samp></dt><dd> means the integer <var>S</var> is the sum of integers in the list <var>L</var> of squares.</dd>
+<dt><samp>*(</samp><var>P</var><samp>,</samp> <var>L</var><samp>)</samp></dt><dd> means the integer <var>P</var> is the product of the integers in the list <var>L</var> of squares.</dd>
+<dt><samp>&minus;(</samp><var>D</var><samp>,</samp> <var>J</var><samp>,</samp> <var>K</var><samp>)</samp></dt><dd> means the integer <var>D</var> is the difference between the integer <var>j</var> in square <var>J</var> and the integer <var>k</var> in square <var>K</var>; D could be equal to either <var>j</var>&minus;<var>k</var> or to <var>k</var>&minus;<var>j</var>.</dd>
+<dt><samp>/(</samp><var>Q</var><samp>,</samp> <var>J</var><samp>,</samp> <var>K</var><samp>)</samp></dt><dd> means the integer <var>Q</var> is the quotient of the integer <var>j</var> in square <var>J</var> and the integer <var>k</var> in square <var>K</var>; <var>Q</var> could be equal to either <var>j</var>&divide;<var>k</var> or to <var>k</var>&divide;<var>j</var>. The remainder must be zero.</dd>
+</dl>
+
+<p>In the above description, a <dfn>square</dfn> is a
+term <samp>[</samp><var>i</var><samp>|</samp><var>j</var><samp>]</samp> where <var>i</var>
+and <var>j</var> are row and column indexes in the range 1
+through <var>N</var>, inclusive. The indexes identify the square in
+the KenKen diagram that is affected by the constraint in question.
+The bottom left square is <samp>[</samp><var>N</var><samp>|1]</samp> and the top
+right square is <samp>[1|</samp><var>N</var><samp>]</samp>.</p>
+
+<p><em>Preconditions.</em> <var>N</var> and <var>C</var> must be <a href='https://en.wikipedia.org/wiki/Ground_term'><dfn>ground terms</dfn></a>, that is, they cannot be logical variables or terms containing any logical variables. <var>N</var> must also be a nonnegative integer. The first argument to each constraint, as described below, must be a nonnegative integer that is less than the current value of <samp>vector_max</samp> in the GNU Prolog <a href='http://www.gprolog.org/manual/html_node/gprolog055.html'>finite domain solver</a>. Your code need not check these preconditions; it can assume that the the preconditions hold.</p>
+
+<p><var>T</var> may contain logical variables, which can represent integers that <samp>kenken/3</samp> should fill in, or can represent entire rows, or the entire grid.</p>
+
+<p>Second, write a predicate <samp>plain_kenken/3</samp> that acts like
+<samp>kenken/3</samp> but does not use the GNU Prolog finite domain
+solver. Instead, <samp>plain_kenken/3</samp> should enumerate the
+possible integer solutions using standard Prolog primitives such
+as <samp>member/2</samp>
+and <samp>is/2</samp>. Although <samp>plain_kenken/3</samp> should be
+simpler than <samp>kenken/3</samp> and should not be restricted to
+integers less than <samp>vector_max</samp>, the tradeoff is that it
+may have worse performance. Illustrate the performance difference on
+an example of your choice, measuring performance with
+<a href='http://gprolog.univ-paris1.fr/manual/html_node/gprolog048.html'><samp>statistics/0</samp>
+or <samp>statistics/2</samp></a>.</p>
+
+<p>Third, consider the problem of solving no-op Kenken. No-op Kenken
+is like Kenken, but the puzzle's cages lack operations, and contain
+only target numbers. The puzzle solver must deduce the operations,
+and the choice of operations is part of the solution.
+<a href='https://webpages.uncc.edu/~hbreiter/DavidsonInstitute/D2Day3.pdf'>This
+set of five no-op KenKen puzzles</a> can help you get started.</p>
+
+<p>Suppose you want to solve no-op KenKen using GNU Prolog. Design a
+good application programming interface for your solver, i.e., specify
+what Prolog terms should be passed to your solver and what the caller
+should expect should happen to those terms after successful and
+unsuccessful calls. Also, give an example call, and its behavior,
+using the style shown below. You do not need to implement the solver,
+only specify its API and implement a
+predicate <samp>noop_kenken_testcase</samp> that performs your example
+call.</p>
+
+<h2>Examples</h2>
+
+<p>As a trivial example, <samp>kenken(1,[],T)</samp> should generate
+just one answer, <samp>T=[[1]]</samp>.  Slightly less
+trivially, <samp>kenken(2,[],T)</samp> should generate two answers,
+<samp>T = [[1,2],[2,1]]</samp> and <samp>T =
+[[2,1],[1,2]]</samp>. With no constraints, the number of answers grows
+rapidly with <var>N</var>: for example, <samp>kenken(3,[],T)</samp>
+should generate 12 answers, and <samp>kenken(4,[],T)</samp> should
+generate 576 answers.</p>
+
+<p>Real KenKen puzzles use constraints to narrow the number of
+solutions to one. Suppose you have the following fact; it represents
+the above KenKen diagram.</p>
+
+<pre>
+kenken_testcase(
+  6,
+  [
+   +(11, [[1|1], [2|1]]),
+   /(2, [1|2], [1|3]),
+   *(20, [[1|4], [2|4]]),
+   *(6, [[1|5], [1|6], [2|6], [3|6]]),
+   -(3, [2|2], [2|3]),
+   /(3, [2|5], [3|5]),
+   *(240, [[3|1], [3|2], [4|1], [4|2]]),
+   *(6, [[3|3], [3|4]]),
+   *(6, [[4|3], [5|3]]),
+   +(7, [[4|4], [5|4], [5|5]]),
+   *(30, [[4|5], [4|6]]),
+   *(6, [[5|1], [5|2]]),
+   +(9, [[5|6], [6|6]]),
+   +(8, [[6|1], [6|2], [6|3]]),
+   /(2, [6|4], [6|5])
+  ]
+).
+</pre>
+
+<p>Then, the query:</p>
+
+<pre>?- fd_set_vector_max(255), kenken_testcase(N,C), kenken(N,C,T).
+</pre>
+
+<p>should output this (reindented to fit):</p>
+
+<pre>
+C = [11+[[1|1],[2|1]], /(2,[1|2],[1|3]), 20*[[1|4],[2|4]],
+     6*[[1|5],[1|6],[2|6],[3|6]], -(3,[2|2],[2|3]), /(3,[2|5],[3|5]),
+     240*[[3|1],[3|2],[4|1],[4|2]], 6*[[3|3],[3|4]], 6*[[4|3],[5|3]],
+     7+[[4|4],[5|4],[5|5]], 30*[[4|5],[4|6]], 6*[[5|1],[5|2]],
+     9+[[5|6],[6|6]], 8+[[6|1],[6|2],[6|3]], /(2,[6|4],[6|5])]
+N = 6
+T = [[5,6,3,4,1,2],
+     [6,1,4,5,2,3],
+     [4,5,2,3,6,1],
+     [3,4,1,2,5,6],
+     [2,3,6,1,4,5],
+     [1,2,5,6,3,4]] ?
+</pre>
+
+<p>and if you respond with a "<samp>;</samp>" the next result should be "no".</p>
+
+<p>Here's another example, of a puzzle that is not valid for strict KenKen because it has multiple solutions. Your solver should be able to generate all the solutions:</p>
+
+<pre>
+kenken(
+  4,
+  [
+   +(6, [[1|1], [1|2], [2|1]]),
+   *(96, [[1|3], [1|4], [2|2], [2|3], [2|4]]),
+   -(1, [3|1], [3|2]),
+   -(1, [4|1], [4|2]),
+   +(8, [[3|3], [4|3], [4|4]]),
+   *(2, [[3|4]])
+  ],
+  T
+), write(T), nl, fail.
+</pre>
+
+<p>This should output:</p>
+
+<pre>
+[[1,2,3,4],[3,4,2,1],[4,3,1,2],[2,1,4,3]]
+[[1,2,4,3],[3,4,2,1],[4,3,1,2],[2,1,3,4]]
+[[2,1,3,4],[3,4,2,1],[4,3,1,2],[1,2,4,3]]
+[[2,1,4,3],[3,4,2,1],[4,3,1,2],[1,2,3,4]]
+[[3,1,2,4],[2,4,3,1],[4,3,1,2],[1,2,4,3]]
+[[3,2,4,1],[1,4,2,3],[4,3,1,2],[2,1,3,4]]
+
+no
+</pre>
+
+<h2>Submit</h2>
+
+<p>Submit a file named <samp>kenken.pl</samp> containing all the requested code. If any extra text information is needed, other than what's in the comments, please submit it as a separate text file.</p>
+
+<footer>
+<hr>
+<small>
+ &copy; 2008&ndash;2010, 2014, 2015, 2018, 2021 <a href="../mail-eggert.html">Paul Eggert</a>.
+ See <a href="../copyright.html">copying rules</a>.<br />
+
+ $Id: hw4.html,v 1.103 2021/02/11 19:56:57 eggert Exp $
+
+</small>
+</footer>
+
+</body>
+</html>

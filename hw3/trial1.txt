@@ -1,0 +1,73 @@
+Makefile                                                                                                                                                                       100%  199    10.3KB/s   00:00    
+test_submission.sh                                                                                                                                                             100%  380    11.6KB/s   00:00    
+Pigzj.java                                                                                                                                                                     100%   10KB 243.9KB/s   00:00    
+README.txt                                                                                                                                                                     100% 6252   259.8KB/s   00:00    
+check_seas.sh                                                                                                                                                                  100%  363    15.7KB/s   00:00    
+--- TIMING, ACCURACY, and SUBMISSION CHECKS ---
+rm -f *.gz *.class *.jar
+rm -rf testdir
+javac Pigzj.java
+bash check.sh
+### 1 processors
+
+gzip:
+pigz:
+real    0m7.961s
+user    0m7.337s
+sys     0m0.069s
+
+Pigzj:
+real    0m7.616s
+user    0m6.970s
+sys     0m0.077s
+
+real    0m7.660s
+user    0m14.067s
+sys     0m0.090s
+-rw-r--r-- 1 pfahnl engugrad 43261332 May  6 22:33 gzip.gz
+-rw-r--r-- 1 pfahnl engugrad 43134815 May  6 22:33 pigz.gz
+-rw-r--r-- 1 pfahnl engugrad 43136282 May  6 22:33 Pigzj.gz
+### 2 processors
+
+gzip:
+pigz:
+real    0m7.542s
+user    0m7.371s
+sys     0m0.072s
+
+Pigzj:
+real    0m4.044s
+user    0m7.235s
+sys     0m0.086s
+
+real    0m4.208s
+user    0m10.696s
+sys     0m0.092s
+-rw-r--r-- 1 pfahnl engugrad 43261332 May  6 22:33 gzip.gz
+-rw-r--r-- 1 pfahnl engugrad 43134815 May  6 22:33 pigz.gz
+-rw-r--r-- 1 pfahnl engugrad 43136282 May  6 22:33 Pigzj.gz
+### 3 processors
+
+gzip:
+pigz:
+real    0m7.856s
+user    0m7.334s
+sys     0m0.062s
+
+Pigzj:
+real    0m2.830s
+user    0m7.158s
+sys     0m0.088s
+
+real    0m3.312s
+user    0m10.050s
+sys     0m0.117s
+-rw-r--r-- 1 pfahnl engugrad 43261332 May  6 22:33 gzip.gz
+-rw-r--r-- 1 pfahnl engugrad 43134815 May  6 22:33 pigz.gz
+-rw-r--r-- 1 pfahnl engugrad 43136282 May  6 22:33 Pigzj.gz
+rm -f *.gz *.class *.jar
+rm -rf testdir
+javac Pigzj.java
+jar cf hw3.jar Pigzj.java README.txt
+bash test_submission.sh
+-rw-r--r-- 1 pfahnl engugrad 6252 May  6 22:32 README.txt

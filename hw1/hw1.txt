@@ -1,0 +1,33 @@
+CS 131 Homework 1 Assessment
+
+To begin tackling the problems, I spent a considerable amount of time delving
+into the OCaml documentation, especially the Pervasives and List module.
+For all the problems, I attempted to use recursion (since loops are forbidden)
+and pattern matching as my go-to tools. Problems 1, 2, 3, 4, and 6 were fairly
+straightforward to solve, with 2 not even needing recursion or pattern
+matching and 6 only having recursion as its biggest complexity.
+
+The most difficult section for me was question 7. To tackle this problem, I 
+resorted to Discussion 1B's hints that proved extremely useful. Namely,
+ * continually expanding a set of rules until no more reachable rules
+ * using equal_sets to check that the set of rules have not changed
+
+Brief overview of the functions:
+ 1. `subset` - finds each element of a in b recursively
+ 2. `equal_sets` - checks if a and b are subsets of each other
+ 3. `set_union` - recursively adds elements of a not in b to b
+ 4. `set_all_union` - recursively calls set_union on the first two elements
+    until one set remains
+ 5. `self_member` - not possible. Explained in a comment.
+ 6. `filter_reachable` - filters the rules based on whether or 
+    not each rule begins with a non-terminal that is a member of
+    the set of reachable non-terminals. The set of reachable non-terminals
+    is continually constructed with the `construct` function by using
+    `computed_fixed_point` with the `equal_set` function until call
+    `construct` yields the same set of nonterminals.
+    6.1 `construct` - creates list of reachable nonterminals from a known set
+        of reachable nonterminals by finding a) all reachable nonterminals 
+        from the first element (calls `find_reachable`) and b) all reachable
+        nonterminals from the rest of the elements by recursing.
+    6.2 `find_reachable` - all reachable nonterminals given a nonterminal
+    6.3 `subset_n` - given a rule's RHS, returns subset of nonterminals

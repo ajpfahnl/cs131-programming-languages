@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>Homework 3. Multithreaded gzip compression filter</title>
+<meta charset='UTF-8'>
+<link rel='author' href='mailto:eggert@cs.ucla.edu'>
+<link rel='license' href='copyright.html'>
+</head>
+
+<body>
+
+<h1>Homework 3. Multithreaded gzip compression filter</h1>
+
+<h2>Background</h2>
+
+<p>You're working for a web server house that regularly needs to
+generate some fairly large data streams and compress them
+using <samp><a href='http://www.gzip.org/'>gzip</a></samp>. The
+compression part of this is turning into a CPU bottleneck and the
+users are starting to complain. Your company can easily afford to
+throw hardware at the problem, so your boss asks you whether you can
+reprogram your servers to do the compression in parallel, taking
+advantage of the fact that your servers are multiprocessor.</p>
+
+<p>You look into the matter, and discover that there's a C
+implementation of a program
+called <samp><a href='http://zlib.net/pigz/'>pigz</a></samp> that does
+something along the lines that you want. (For convenience, a copy of
+a recent version of this program is available on SEASnet in
+the <samp>/usr/local/cs/src/pigz</samp> directory, and an executable
+is installed in <samp>/usr/local/cs/bin/pigz</samp>.)
+The <samp>pigz</samp> program can be used as a filter that reads
+programs from standard input and writes to standard
+output. Unfortunately, it has a problem: it's written in C. Your
+company has standardized on Java, so that it can use just one version
+of each executable and run it on a wide variety of servers that you
+have: some are x86-64, some are ARM, and some use secret RISC-V-based
+hardware whose full nature isn't disclosed even to your group.</p>
+
+<p>You tell this to your boss, who responds, "OK, so do
+what <samp>pigz</samp> is doing, but do it in Java". Her suggestion is
+to use standard Java classes and see how well your substitute does,
+compared to standard <samp>pigz</samp>.</p>
+
+<p>The gzip format lets you
+partition an input stream, compress each partition separately, and
+concatenate the compressed versions of each partition; the resulting
+compressed stream can be decompressed by <samp>pigz</samp>,
+by <samp>gzip</samp>, or by any other gzip-format-understanding
+program. Unfortunately, this approach doesn't work for your
+application, because the data are generated dynamically in
+in the form of a stream, and you want the data to be compressed
+and delivered to its destination on the fly. You do not want to
+generate all the data into a huge file, partition the file,
+compress each partition separately, and send the concatenation
+of the compressed partitions.</p>
+
+<p>What you want instead, is to do what <samp>pigz</samp> does: divide
+the input into fixed-size blocks (with block size equal to 128 KiB),
+and have P threads that are each busily compressing a block. That
+is, <samp>pigz</samp> starts by reading P blocks and starting a
+compression thread on each block. It then waits for the first thread
+to finish, outputs its result, and then can reuse that thread to
+compress the (P+1)st block.</p>
+
+<p>For better compression, <samp>pigz</samp> does something else.
+Instead of compressing each block independently, it uses the last 32
+KiB of the previous block to prime the compression dictionary for the
+next block. That way, each block other than the first is compressed
+better, in the typical case. You want to do that too.</p>
+
+<p>You search around the net some more to see whether someone has done
+this, and find that there's a package by C&eacute;drik Lime called
+<a href='https://github.com/MessAdmin'>MessAdmin</a> that has a
+similar feature in MessAdmin-Core.
+It has a lot of code that you don't need, though, and
+doesn't have a simple standalone application to try out. You'd like a
+stripped down version that just does <samp>pigz</samp>-style
+multithreaded compression, so that you compare the two applications'
+performances.</p>
+
+<h2>Assignment</h2>
+
+<p>Write a Java program called <samp>Pigzj</samp> that behaves like
+the C <samp>pigz</samp> implementation, in the sense that it operates
+with multiple compression threads to improve wall-clock
+performance. Each compression thread acts on an input data block of
+size 128 KiB. Each thread uses as its dictionary the last
+32 KiB of the previous input data block.
+Compressed output blocks are generated in the
+same order that their uncompressed blocks were input. The number of
+compression threads defaults to the number of available processors,
+but this can be overridden. Your program may also use a small, fixed
+number of threads to control the compression threads or to do
+input/output.</p>
+
+<p>Your implementation can be a simplification of <samp>pigz</samp>,
+in the following ways:</p>
+
+<ul>
+<li><samp>Pigzj</samp> need not decompress; you have to implement
+only the compression part.</li>
+
+<li><samp>Pigzj</samp> needs to support only the
+<samp>-p <var>processes</var></samp> options of <samp>pigz</samp>. The
+latter option must be spelled with the space between the option and
+the value: for example, <samp>-p3</samp> (without a
+space) need not be recognized. <samp>Pigzj</samp> can report an
+error if any other option syntax is used.</li>
+
+<li><samp>Pigzj</samp> always reads from standard input and writes
+to standard output. It can report an error if you specify a file
+name.</li>
+
+<li><samp>Pigzj</samp>'s behavior is not specified if the input or
+the output is a terminal. For example, it can unconditionally read
+standard input and write to standard output without checking whether
+these streams are connected to a terminal.</li>
+
+<li>When an error occurs, <samp>Pigzj</samp> need not issue exactly
+the same diagnostic message as <samp>pigz</samp>, so long as it
+detects and reports the error to standard error, and exits with
+nonzero status.</li>
+
+</ul>
+
+<p><samp>Pigzj</samp> should behave like <samp>pigz</samp> in the
+following respects:</p>
+
+<ul>
+<li>If you decompress the output with <samp>gzip</samp> or
+with <samp>pigz</samp>, you get a copy of the input.</li>
+
+<li>The output is compressed, about as well as
+<samp>pigz</samp> would compress it.</li>
+
+<li>The output follows the GZIP file format
+standard, <a href='https://tools.ietf.org/html/rfc1952'>Internet RFC
+1952</a>.</li>
+
+<li>The output contains just a single member, that is, it does not
+contain the concatenation of two or more members. For a definition of
+"member" please see RFC 1952 &sect;2.3. If you have trouble
+implementing this, then for partial credit you can generate output
+with multiple members.</li>
+
+<li>Ideally the output is byte-for-byte identical with the output
+of <samp>pigz</samp>. If this is not possible, the reason for any
+discrepancies must be documented.</li>
+
+<li><samp>Pigzj</samp> runs faster than <samp>gzip</samp>, when the
+number of processors is greater than 1. It is competitive in speed
+with <samp>pigz</samp>.</li>
+
+<li>The default value for <samp><var>processes</var></samp> is the
+number of available processors; see the Java standard
+library's <samp><a href='https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/lang/Runtime.html#availableProcessors()'>availableProcessors</a></samp>
+method.</li>
+
+<li>Read errors and write errors are detected. For example, the
+command "<samp>pigz &lt;/dev/zero &gt;/dev/full</samp>" reports a
+write error and exits with nonzero exit status, and the same should be
+true for "<samp>java Pigzj &lt;/dev/zero &gt;/dev/full</samp>".</li>
+
+<li>Out-of-range requests are detected. For example, on the Seasnet
+Linux servers "<samp>pigz -p 10000000 &lt;/dev/zero
+&gt;/dev/null</samp>" by default reports an error and exits with
+nonzero status due to lack of virtual memory,
+and <samp>Pigzj</samp> should do likewise.</li>
+
+<li>The input and output need not be a regular file; they may be
+pipes.  For example, the command "<samp>cat /etc/passwd | java
+Pigzj | cat</samp>" should output the same thing as the command
+"<samp>java Pigzj &lt;/etc/passwd</samp>".</li>
+
+</ul>
+
+<p>Measure the performance of three programs:
+your <samp>Pigzj</samp>, <samp>/usr/local/cs/bin/pigz</samp>, and
+<samp>/usr/local/cs/bin/gzip</samp>. For your measurement platform,
+use a Seasnet Linux server, and specify its configuration well enough
+so that others outside the class could reproduce your results.
+Use shell commands like the following to compare the performance
+of the three implementations:</p>
+
+<pre><samp>input=/usr/local/cs/jdk-16.0.1/lib/modules
+time gzip &lt;$input &gt;gzip.gz
+time pigz &lt;$input &gt;pigz.gz
+time java Pigzj &lt;$input &gt;Pigzj.gz
+ls -l gzip.gz pigz.gz Pigzj.gz
+
+# This checks Pigzj's output.
+pigz -d &lt;Pigzj.gz | <a href='https://pubs.opengroup.org/onlinepubs/9699919799/utilities/cmp.html'>cmp</a> - $input
+</samp></pre>
+
+<p>See
+what happens if the number of
+processors is changed to values other than the default, trying this
+with both <samp>pigz</samp> and <samp>Pigzj</samp>. Run each trial
+at least three times, and report each instance of real time, user
+time, and system time; also, report the compression ratio of each
+command.</p>
+
+<p>Use
+<a href='https://man7.org/linux/man-pages/man1/strace.1.html'>strace</a>
+to generate traces of system calls executed by the three programs, and
+compare and contrast the resulting traces. Do they explain the
+performance differences that you observe?</p>
+
+<p>Assess your work by writing an after-action report that summarizes
+your observations. Focus in particular on any problems
+you foresee as the file size and the number of threads scales up, and
+which method you expect to work better in general. This report should
+be a simple ASCII text file that consumes at most 50,000 bytes.
+(Because this report is more substantial than usual, it’s
+worth more of the homework than usual.)</p>
+
+<p>Your implementation may use ideas taken from MessAdmin, but
+all the code you submit must be your own. If you use ideas, give
+MessAdmin's author proper credit for them in your code's comments
+and in your after-action report.</p>
+
+<p>Your implementation should operate correctly under OpenJDK 16.
+There is no need to run on older Java versions. Please keep
+your implementation as simple and short as possible, for the benefit
+of the reader. Your program should compile cleanly, without any
+warnings.</p>
+
+<p>If your <samp>PATH</samp> is set correctly to a string starting
+with "<samp>/usr/local/cs/bin</samp>:", the command
+"<samp>java&nbsp;-version</samp>" should output the following
+text:</p>
+
+<pre><samp>openjdk version "16.0.1" 2021-04-20
+OpenJDK Runtime Environment (build 16.0.1+9-24)
+OpenJDK 64-Bit Server VM (build 16.0.1+9-24, mixed mode, sharing)
+</samp></pre>
+
+<p>the command "<samp>pigz&nbsp;--version</samp>" should output
+"<samp>pigz 2.6</samp>", and the command
+"<samp>gzip&nbsp;--version</samp>" should output "<samp>gzip
+1.10</samp>" followed by some licensing information.</p>
+
+<h2>Submit</h2>
+
+<p>To turn in your assignment, submit a single jar file
+<samp>hw3.jar</samp> that contains both your Java source code and
+a plain text file <samp>README.txt</samp> that holds your
+assessment. Do not submit class files.
+Before submitting <samp>hw3.jar</samp> you should test it using
+the following shell commands on SEASnet:</p>
+
+<pre><samp># Make a fresh directory and change into it.
+<a href='http://pubs.opengroup.org/onlinepubs/9699919799/utilities/mkdir.html'>mkdir</a> testdir
+<a href='http://pubs.opengroup.org/onlinepubs/9699919799/utilities/cd.html'>cd</a> testdir
+
+# Extract your program.
+jar xf ../hw3.jar
+
+# Make sure you have a README.txt file.
+<a href='http://pubs.opengroup.org/onlinepubs/9699919799/utilities/ls.html'>ls</a> -l README.txt
+
+# Build your modified version.
+javac $(<a href='http://pubs.opengroup.org/onlinepubs/9699919799/utilities/find.html'>find</a> . -name '*.java')
+
+# Check your modified version; the output should be empty.
+cat ../hw3.jar | java Pigzj | pigz -d | cmp - ../hw3.jar
+</samp></pre>
+
+<h2>Hints</h2>
+
+<p>Here are some library references and tips that may help.</p>
+
+<ul>
+
+<li><a href='https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/lang/Integer.html#parseInt(java.lang.String)'>java.lang.Integer.parseInt</a></li>
+
+<li><a href='https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/nio/package-summary.html'>java.nio</a></li>
+
+<li><a href='https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/util/zip/package-summary.html'>java.util.zip</a></li>
+
+<li><a href='https://docs.oracle.com/javase/tutorial/essential/concurrency/index.html'>Lesson: Concurrency</a>, <i>The Java Tutorials</i> (2013)</li>
+
+<li>C&eacute;drik Lime, <a href='http://messadmin.sourceforge.net/'>MessAdmin: Notification system and Session administration for Java EE Web Applications</a> (2010)
+
+</ul>
+
+<footer>
+<hr>
+<small>
+ &copy; 2010&ndash;2021 <a href='../mail-eggert.html'>Paul Eggert</a>.
+ See <a href='../copyright.html'>copying rules</a>.<br>
+
+ $Id: hw3.html,v 1.88 2021/04/28 22:55:53 eggert Exp eggert $
+
+</small>
+</footer>
+
+</body>
+</html>

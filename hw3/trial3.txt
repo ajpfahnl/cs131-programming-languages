@@ -1,0 +1,68 @@
+--- TIMING, ACCURACY, and SUBMISSION CHECKS ---
+rm -f *.gz *.class *.jar
+rm -rf testdir
+javac Pigzj.java
+bash check.sh
+### 1 processors
+
+gzip:
+pigz:
+real    0m10.189s
+user    0m7.344s
+sys    0m0.100s
+
+Pigzj:
+real    0m8.886s
+user    0m7.000s
+sys    0m0.076s
+
+real    0m9.880s
+user    0m15.215s
+sys    0m0.103s
+-rw-r--r-- 1 pfahnl engugrad 43261332 May  6 22:52 gzip.gz
+-rw-r--r-- 1 pfahnl engugrad 43134815 May  6 22:52 pigz.gz
+-rw-r--r-- 1 pfahnl engugrad 43136282 May  6 22:52 Pigzj.gz
+### 2 processors
+
+gzip:
+pigz:
+real    0m7.813s
+user    0m7.324s
+sys    0m0.079s
+
+Pigzj:
+real    0m4.098s
+user    0m7.160s
+sys    0m0.076s
+
+real    0m4.090s
+user    0m10.643s
+sys    0m0.112s
+-rw-r--r-- 1 pfahnl engugrad 43261332 May  6 22:52 gzip.gz
+-rw-r--r-- 1 pfahnl engugrad 43134815 May  6 22:52 pigz.gz
+-rw-r--r-- 1 pfahnl engugrad 43136282 May  6 22:52 Pigzj.gz
+### 3 processors
+
+gzip:
+pigz:
+real    0m7.857s
+user    0m7.330s
+sys    0m0.077s
+
+Pigzj:
+real    0m2.840s
+user    0m7.188s
+sys    0m0.099s
+-rw-r--r-- 1 pfahnl engugrad 43261332 May  6 22:52 gzip.gz
+-rw-r--r-- 1 pfahnl engugrad 43134815 May  6 22:52 pigz.gz
+-rw-r--r-- 1 pfahnl engugrad 43136282 May  6 22:52 Pigzj.gz
+
+real    0m3.248s
+user    0m9.931s
+sys    0m0.102s
+rm -f *.gz *.class *.jar
+rm -rf testdir
+javac Pigzj.java
+jar cf hw3.jar Pigzj.java README.txt
+bash test_submission.sh
+-rw-r--r-- 1 pfahnl engugrad 6754 May  6 22:51 README.txt
